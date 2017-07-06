@@ -1,4 +1,5 @@
 import math
+from Prepare import FAR_L
 
 
 def func1(n1, n, r, d, l1, u):
@@ -36,6 +37,11 @@ def func5(n1, n, r, d, l1, f):
     return f
 
 
+def func6( d, l1):
+    d = l1+d
+    return d
+
+
 def paraxial(lens, light):
 
     light.u = math.radians(light.u)
@@ -60,7 +66,7 @@ def paraxial(lens, light):
         l1 = func2(n1, n, r, d, l1, u, u1)
         n1 = func3(n)
         u = u1
-    print('像距：', l1)
+    # print('像距：', l1)
     return l1
 
 
@@ -76,4 +82,37 @@ def focal(lens):
         f = func5(n1, n, r, d, l1, f)
         l1 = func4(n1, n, r, d, l1)
         n1 = func3(n)
-    print('焦距：', f)
+    return f
+
+
+def height(lens, y, w):
+
+    f = focal(lens)
+    print(w)
+
+    if lens[0].d > FAR_L:
+        n1 = 1
+        l1 = 0
+        b = 1
+        u = y/lens[0].d
+        d1 = 0
+
+        number = len(lens)
+        for item in range(0, number):
+            n = lens[item].n
+            r = lens[item].r
+            d = lens[item].d
+
+            u1 = func1(n1, n, r, d, l1, u)
+            d1 = func6(d, l1)
+            l1 = func2(n1, n, r, d, l1, u, u1)
+            b = (b *n1*l1)/(n*d1)
+            n1 = func3(n)
+            u = u1
+        print('像高：', b * y)
+        return b * y
+    else:
+        u = math.tan(w)
+        print('像高：', f*u)
+        return f*u
+

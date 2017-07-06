@@ -26,7 +26,8 @@ K = {
     'spherical': [0.7, 1],
     'coma': [[0.7, 0.7], [0.7, 1], [1, 0.7], [1, 1]],
     'trans_chromatism': [0.7, 1],
-    'mag_chromatism': [0.7, 0.1]
+    'mag_chromatism': [0.7, 1],
+    'distortion': [0.7, 1]
 }
 K1 = 1
 K2 = 0

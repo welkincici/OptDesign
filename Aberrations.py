@@ -24,7 +24,6 @@ def coma():
     aber = {}
     gauss = Calculate.first_para()
     if Materials.lens[0].d > FAR_L:
-        # BUG!!
         for k in Materials.K['coma']:
             Materials.K2 = k[1]
             Materials.K1 = 0
@@ -57,7 +56,7 @@ def coma():
             light = Calculate.meri_infi_off()
             y_a = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
-            aber[str(Materials.K1) + '_' + str(Materials.K2)] = (y_a + y_b) / 2 - y
+            aber[str(Materials.K1) + '_' + str(Materials.K2)] = y - (y_a + y_b) / 2
 
     print(aber)
     return aber
@@ -65,29 +64,84 @@ def coma():
 
 def astigmatism():
     print('astigmatism')
+
     out = Calculate.off_axis()
-    light = Calculate.meri_limi_off()[-1]
+    if Materials.lens[0].d > FAR_L:
+        light = Calculate.meri_limi_off()[-1]
+    else:
+        light = Calculate.meri_infi_off()[-1]
     cos_u = math.cos(math.radians(light['U']))
 
-    aber = out['s'] * cos_u - out['t'] * cos_u
+    aber = out[0] * cos_u - out[1] * cos_u
+    print(aber)
 
 
 def curvature():
     print('curvature')
+    aber = {}
+    out = Calculate.off_axis()
+    if Materials.lens[0].d > FAR_L:
+        light = Calculate.meri_limi_off()[-1]
+    else:
+        light = Calculate.meri_infi_off()[-1]
+    cos_u = math.cos(math.radians(light['U']))
+
+    aber['s'] = out[0] * cos_u
+    aber['t'] = out[1] * cos_u
+
+    print(aber)
+
+    return aber
 
 
 def distortion():
     print('distortion')
+    gauss = Calculate.first_para()
+    aber = {}
+
+    if Materials.lens[0].d > FAR_L:
+        for k in Materials.K['distortion']:
+            Materials.K2 = k
+            Materials.K1 = 0
+            light = Calculate.meri_limi_off()
+            y = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            y0 = -Calculate.height()
+            aber[str(k)] = -y - y0
+    else:
+        for k in Materials.K['distortion']:
+            Materials.K2 = k
+            Materials.K1 = 0
+            light = Calculate.meri_infi_off()
+            y = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            y0 = -Calculate.height()
+            aber[str(k)] = y - y0
+
+    print(aber)
+    return aber
 
 
 def mag_chromatism():
-    print('magnification chromatism')
+    # print('magnification chromatism')
 
     lens = Materials.lens.copy()
     gauss = Calculate.first_para()
     Materials.K1 = 0
 
     aber = {}
+
+    y_d = {}
+    if Materials.lens[0].d > FAR_L:
+        # BUG!!
+        for k in Materials.K['mag_chromatism']:
+            Materials.K2 = k
+            light = Calculate.meri_limi_off()
+            y_d[str(k)] = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+
+    else:
+        for k in Materials.K['mag_chromatism']:
+            Materials.K2 = k
+            light = Calculate.meri_infi_off()
+            y_d[str(k)] = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
     for item in range(0, len(lens)):
         Materials.lens[item].n = Materials.nf[item]
@@ -98,13 +152,13 @@ def mag_chromatism():
         for k in Materials.K['mag_chromatism']:
             Materials.K2 = k
             light = Calculate.meri_limi_off()
-            y_f[str(k)] = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            y_f[str(k)] = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
     else:
         for k in Materials.K['mag_chromatism']:
             Materials.K2 = k
             light = Calculate.meri_infi_off()
-            y_f[str(k)] = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            y_f[str(k)] = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
     for item in range(0, len(lens)):
         Materials.lens[item].n = Materials.nc[item]
@@ -115,18 +169,21 @@ def mag_chromatism():
         for k in Materials.K['mag_chromatism']:
             Materials.K2 = k
             light = Calculate.meri_limi_off()
-            y_c[str(k)] = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            y_c[str(k)] = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
     else:
         for k in Materials.K['mag_chromatism']:
             Materials.K2 = k
             light = Calculate.meri_infi_off()
-            y_c[str(k)] = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            y_c[str(k)] = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
     for k in Materials.K['mag_chromatism']:
         aber[str(k)] = y_f[str(k)] - y_c[str(k)]
 
     Materials.lens = lens
+    print(y_d)
+    print(y_c)
+    print(y_f)
     print(aber)
     return aber
 

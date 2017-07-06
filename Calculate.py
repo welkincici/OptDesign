@@ -110,4 +110,7 @@ def off_axis():
 
 
 def height():
-    return Paraxial.height(Materials.lens, Materials.obj['r'], math.radians(Materials.obj['w'])) * Materials.K2
+    y = Materials.obj['r'] * Materials.K2
+    w = math.radians(Materials.obj['w']) * Materials.K2
+
+    return Paraxial.height(Materials.lens, y, w)

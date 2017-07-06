@@ -1,18 +1,26 @@
 import math
-from Prepare import Upie
+from Prepare import Upie, FAR_L
 import Calculate
+import Materials
 
 
 def func_tpie(t, n, npie, r, I, Ipie):
-    I = math.radians(I)
-    Ipie = math.radians(Ipie)
-    a = npie * math.cos(Ipie) * math.cos(Ipie) * t
+    I = math.cos(math.radians(I))
+    Ipie = math.cos(math.radians(Ipie))
+    a = npie * Ipie * Ipie * t
+    b = n * I * I
+    c = (npie * Ipie - n * I) * t / r
 
-    return npie / (n / t + (npie - n) / r)
+    return a / (b + c)
 
 
 def func_spie(s, n, npie, r, I, Ipie):
-    return npie / (n / s + (npie - n) / r)
+    I = math.cos(math.radians(I))
+    Ipie = math.cos(math.radians(Ipie))
+
+    c = (npie * Ipie - n * I) * s / r
+
+    return npie * s / (n + c)
 
 
 def func_D(h1, h2, L, U, r, n, npie):
@@ -22,18 +30,23 @@ def func_D(h1, h2, L, U, r, n, npie):
 
 
 def off_axis(lens):
-    lights = Calculate.meri_limi_off()
-    s = lights[0]['l'] / math.cos(math.radians(lights[0]['U']))
+    if Materials.lens[0].d > FAR_L:
+        lights = Calculate.meri_limi_off()
+    else:
+        lights = Calculate.meri_infi_off()
+    s = lights[0]['L'] / math.cos(math.radians(lights[0]['U']))
     t = s
     h = []
+
     for i in range(0, len(lens)):
-        h[i] = lens[i].r * math.sin(math.radians(lights[i]['U'] + lights[i]['I']))
+        h.append(lens[i].r * math.sin(math.radians(lights[i]['U'] + lights[i]['I'])))
 
     for i in range(0, len(lens)):
         if i == 0:
             n = 1
         else:
             n = lens[i-1].n
+
         spie = func_spie(s, n, lens[i].n, lens[i].r, lights[i]['I'], lights[i]['Ipie'])
         tpie = func_tpie(s, n, lens[i].n, lens[i].r, lights[i]['I'], lights[i]['Ipie'])
 
@@ -43,12 +56,12 @@ def off_axis(lens):
         else:
             # 过渡公式
             light = lights[i]
-            D = func_D(h[i], h[i + 1], light[0], light[1], lens[i].r, n, lens[i].n)
+            D = func_D(h[i], h[i + 1], light['L'], light['U'], lens[i].r, n, lens[i].n)
             t = tpie - D
             s = spie - D
 
-        print(t)
-        print(s)
+        # print(t)
+        # print(s)
 
     return [s, t]
 
