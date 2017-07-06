@@ -93,7 +93,7 @@ def meri_limi_off():
     ymax = Materials.obj['r']
 
     tanU = (K2 * ymax - K1 * Materials.stops[0].r) / (Materials.stops[0].d - Materials.lens[0].d)
-    L = Materials.stops[0].d + Materials.stops[0].r / tanU
+    L = Materials.stops[0].d + K1 * Materials.stops[0].r / tanU
     U = math.degrees(math.atan(tanU))
 
     Materials.lights['meri_limi_off_' + str(K1) + '_' + str(K2)] = Materials.Light(L, U)
@@ -110,4 +110,4 @@ def off_axis():
 
 
 def height():
-    return Paraxial.height(Materials.lens, Materials.obj['r'], Materials.obj['w'])
+    return Paraxial.height(Materials.lens, Materials.obj['r'], math.radians(Materials.obj['w'])) * Materials.K2
