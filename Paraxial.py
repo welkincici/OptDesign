@@ -37,31 +37,31 @@ def func5(n1, n, r, d, l1, f):
     return f
 
 
-def func6( d, l1):
+def func6(d, l1):
     d = l1+d
     return d
 
 
 def paraxial(lens, light):
 
-    light.u = math.radians(light.u)
+    light['U'] = math.radians(light['U'])
 
     n1 = 1
     l1 = 0
 
     number = len(lens)
-    n = lens[0].n
-    r = lens[0].r
-    d = light.l
-    u1 = func1(n1, n, r, d, l1, light.u)
-    l1 = func2(n1, n, r, d, l1, light.u, u1)
+    n = lens[0]['n']
+    r = lens[0]['r']
+    d = light['L']
+    u1 = func1(n1, n, r, d, l1, light['U'])
+    l1 = func2(n1, n, r, d, l1, light['U'], u1)
     n1 = func3(n)
     u = u1
 
     for item in range(1, number):
-        n = lens[item].n
-        r = lens[item].r
-        d = lens[item].d
+        n = lens[item]['n']
+        r = lens[item]['r']
+        d = lens[item]['d']
         u1 = func1(n1, n, r, d, l1, u)
         l1 = func2(n1, n, r, d, l1, u, u1)
         n1 = func3(n)
@@ -72,13 +72,13 @@ def paraxial(lens, light):
 
 def focal(lens):
     number = len(lens)
-    f = lens[0].n * lens[0].r / (lens[0].n - 1)
-    n1 = lens[0].n
+    f = lens[0]['n'] * lens[0]['r'] / (lens[0]['n'] - 1)
+    n1 = lens[0]['n']
     l1 = f
     for item in range(1, number):
-        n = lens[item].n
-        r = lens[item].r
-        d = lens[item].d
+        n = lens[item]['n']
+        r = lens[item]['r']
+        d = lens[item]['d']
         f = func5(n1, n, r, d, l1, f)
         l1 = func4(n1, n, r, d, l1)
         n1 = func3(n)
@@ -88,20 +88,20 @@ def focal(lens):
 def height(lens, y, w):
 
     f = focal(lens)
-    print(w)
+    # print(w)
 
-    if lens[0].d > FAR_L:
+    if lens[0]['d'] > FAR_L:
         n1 = 1
         l1 = 0
         b = 1
-        u = y/lens[0].d
+        u = y/lens[0]['d']
         d1 = 0
 
         number = len(lens)
         for item in range(0, number):
-            n = lens[item].n
-            r = lens[item].r
-            d = lens[item].d
+            n = lens[item]['n']
+            r = lens[item]['r']
+            d = lens[item]['d']
 
             u1 = func1(n1, n, r, d, l1, u)
             d1 = func6(d, l1)
@@ -109,10 +109,10 @@ def height(lens, y, w):
             b = (b *n1*l1)/(n*d1)
             n1 = func3(n)
             u = u1
-        print('像高：', b * y)
+        # print('像高：', b * y)
         return b * y
     else:
         u = math.tan(w)
-        print('像高：', f*u)
+        # print('像高：', f*u)
         return f*u
 

@@ -78,8 +78,11 @@ class NewTable(QWidget):
         Materials.lens = []
         Materials.stops = []
         Materials.obj = {}
+        Materials.lights = {}
+        Materials.aber = {}
+        Materials.basic = {}
         my_table = []
-        print('1')
+
         for row in range(0, rows):
             my_row = []
             for col in range(0, 4):
@@ -113,6 +116,7 @@ class NewTable(QWidget):
                 print('ima')
             else:
                 Materials.add_len(my_table[row])
+                Materials.nd.append(my_table[row][0])
         Materials.show()
 
     def save_file(self):
