@@ -5,6 +5,7 @@ import datetime
 import xlwt
 import xlrd
 import Materials
+from Prepare import FAR_L
 # n,v:面后面的折射率和阿贝,r是半径,d是跟前一个面的距离
 
 

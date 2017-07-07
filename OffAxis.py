@@ -5,22 +5,37 @@ import Materials
 
 
 def func_tpie(t, n, npie, r, I, Ipie):
-    I = math.cos(math.radians(I))
-    Ipie = math.cos(math.radians(Ipie))
-    a = npie * Ipie * Ipie * t
-    b = n * I * I
-    c = (npie * Ipie - n * I) * t / r
+    cos_I = math.cos(math.radians(I))
+    cos_Ipie = math.cos(math.radians(Ipie))
+    a = (npie * cos_Ipie - n * cos_I) / r
 
-    return a / (b + c)
+    if Materials.lens[0].d < FAR_L:
+        c = a
+    else:
+        c = n * cos_I * cos_I / t + a
+
+    b = npie * cos_Ipie * cos_Ipie
+
+    # print('I', I, 'Ipie', Ipie)
+    # print('ncos_I', n * cos_I, 'npiecos_Ipie', npie * cos_Ipie)
+    # print('a', a, 'c', c)
+    # print('t', b / c)
+
+    return b / c
 
 
 def func_spie(s, n, npie, r, I, Ipie):
-    I = math.cos(math.radians(I))
-    Ipie = math.cos(math.radians(Ipie))
+    cos_I = math.cos(math.radians(I))
+    cos_Ipie = math.cos(math.radians(Ipie))
 
-    c = (npie * Ipie - n * I) * s / r
+    a = (npie * cos_Ipie - n * cos_I) / r
 
-    return npie * s / (n + c)
+    if Materials.lens[0].d < FAR_L:
+        k = a
+    else:
+        k = n / s + a
+
+    return npie / k
 
 
 def func_D(h1, h2, L, U, r, n, npie):
@@ -34,9 +49,12 @@ def off_axis(lens):
         lights = Calculate.meri_limi_off()
     else:
         lights = Calculate.meri_infi_off()
-    s = lights[0]['L'] / math.cos(math.radians(lights[0]['U']))
+    s = Materials.lens[0].d / math.cos(math.radians(lights[0]['U']))
     t = s
     h = []
+
+    # print(lights)
+    # print(s)
 
     for i in range(0, len(lens)):
         h.append(lens[i].r * math.sin(math.radians(lights[i]['U'] + lights[i]['I'])))
@@ -48,7 +66,8 @@ def off_axis(lens):
             n = lens[i-1].n
 
         spie = func_spie(s, n, lens[i].n, lens[i].r, lights[i]['I'], lights[i]['Ipie'])
-        tpie = func_tpie(s, n, lens[i].n, lens[i].r, lights[i]['I'], lights[i]['Ipie'])
+        tpie = func_tpie(t, n, lens[i].n, lens[i].r, lights[i]['I'], lights[i]['Ipie'])
+        # print('spie', spie, 'tpie', tpie)
 
         if i == len(lens) - 1:
             s = spie
@@ -60,9 +79,7 @@ def off_axis(lens):
             t = tpie - D
             s = spie - D
 
-        # print(t)
-        # print(s)
-
+        # print('s', s, 't', t)
     return [s, t]
 
 # def func_ltpie(tpie,xk,Ukpie):

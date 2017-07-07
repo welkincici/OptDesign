@@ -72,12 +72,13 @@ def astigmatism():
         light = Calculate.meri_infi_off()[-1]
     cos_u = math.cos(math.radians(light['U']))
 
-    aber = out[0] * cos_u - out[1] * cos_u
+    aber = - out[0] * cos_u + out[1] * cos_u
     print(aber)
 
 
 def curvature():
     print('curvature')
+    gauss = Calculate.first_para()
     aber = {}
     out = Calculate.off_axis()
     if Materials.lens[0].d > FAR_L:
@@ -86,8 +87,8 @@ def curvature():
         light = Calculate.meri_infi_off()[-1]
     cos_u = math.cos(math.radians(light['U']))
 
-    aber['s'] = out[0] * cos_u
-    aber['t'] = out[1] * cos_u
+    aber['s'] = out[0] * cos_u - gauss
+    aber['t'] = out[1] * cos_u - gauss
 
     print(aber)
 
@@ -114,7 +115,7 @@ def distortion():
             light = Calculate.meri_infi_off()
             y = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
             y0 = -Calculate.height()
-            aber[str(k)] = y - y0
+            aber[str(k)] = - y + y0
 
     print(aber)
     return aber
@@ -181,9 +182,9 @@ def mag_chromatism():
         aber[str(k)] = y_f[str(k)] - y_c[str(k)]
 
     Materials.lens = lens
-    print(y_d)
-    print(y_c)
-    print(y_f)
+    print('d', y_d)
+    print('c', y_c)
+    print('f', y_f)
     print(aber)
     return aber
 

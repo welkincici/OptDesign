@@ -7,23 +7,21 @@ from Prepare import FAR_L
 
 
 def first_para():
-    if 'first_para' not in Materials.lights:
-        light = Materials.Light(Materials.lens[0].d,
-                                math.degrees(math.atan(Materials.stops[0].r / Materials.lens[0].d)))
-        Materials.lights['first_para'] = light
-    # print('first_para')
+    light = Materials.Light(Materials.lens[0].d,
+                            math.degrees(math.atan(Materials.stops[0].r / Materials.lens[0].d)))
+    Materials.lights['first_para'] = light
+    print(Paraxial.paraxial(Materials.lens, Materials.lights['first_para']))
     return Paraxial.paraxial(Materials.lens, Materials.lights['first_para'])
 
 
 def second_para():
-    if 'second_para' not in Materials.lights:
-        if 'w' in Materials.obj:
-            light = Materials.Light(0, Materials.obj['w'])
-        else:
-            light = Materials.Light(0,
-                                    math.degrees(math.atan(Materials.obj['r'] / Materials.lens[0].d)))
+    if 'w' in Materials.obj:
+        light = Materials.Light(0, Materials.obj['w'])
+    else:
+        light = Materials.Light(0,
+                                math.degrees(math.atan(Materials.obj['r'] / Materials.lens[0].d)))
 
-        Materials.lights['second_para'] = light
+    Materials.lights['second_para'] = light
     return Paraxial.paraxial(Materials.lens, Materials.lights['second_para'])
 
 
@@ -113,4 +111,17 @@ def height():
     y = Materials.obj['r'] * Materials.K2
     w = math.radians(Materials.obj['w']) * Materials.K2
 
+    print(Paraxial.height(Materials.lens, y, w))
     return Paraxial.height(Materials.lens, y, w)
+
+
+def focal():
+    print(Paraxial.focal(Materials.lens))
+    return Paraxial.focal(Materials.lens)
+
+
+def lp():
+    light = Materials.Light(0,
+                            math.degrees(math.atan(Materials.stops[0].r / Materials.lens[0].d)))
+    print(Paraxial.paraxial(Materials.lens, light))
+    return Paraxial.paraxial(Materials.lens, light)
