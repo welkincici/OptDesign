@@ -16,11 +16,6 @@ def func_tpie(t, n, npie, r, I, Ipie):
 
     b = npie * cos_Ipie * cos_Ipie
 
-    # print('I', I, 'Ipie', Ipie)
-    # print('ncos_I', n * cos_I, 'npiecos_Ipie', npie * cos_Ipie)
-    # print('a', a, 'c', c)
-    # print('t', b / c)
-
     return b / c
 
 
@@ -53,11 +48,8 @@ def off_axis(lens):
     t = s
     h = []
 
-    # print(lights)
-    # print(s)
-
     for i in range(0, len(lens)):
-        h.append(lens[i].r * math.sin(math.radians(lights[i]['U'] + lights[i]['I'])))
+        h.append(lens[i].r * math.sin(math.radians(lights[i+1]['U'] + lights[i+1]['I'])))
 
     for i in range(0, len(lens)):
         if i == 0:
@@ -65,8 +57,8 @@ def off_axis(lens):
         else:
             n = lens[i-1].n
 
-        spie = func_spie(s, n, lens[i].n, lens[i].r, lights[i]['I'], lights[i]['Ipie'])
-        tpie = func_tpie(t, n, lens[i].n, lens[i].r, lights[i]['I'], lights[i]['Ipie'])
+        spie = func_spie(s, n, lens[i].n, lens[i].r, lights[i+1]['I'], lights[i+1]['Ipie'])
+        tpie = func_tpie(t, n, lens[i].n, lens[i].r, lights[i+1]['I'], lights[i+1]['Ipie'])
         # print('spie', spie, 'tpie', tpie)
 
         if i == len(lens) - 1:
@@ -79,15 +71,4 @@ def off_axis(lens):
             t = tpie - D
             s = spie - D
 
-        # print('s', s, 't', t)
     return [s, t]
-
-# def func_ltpie(tpie,xk,Ukpie):
-#     result=tpie*(math.cos(math.radians(Ukpie)))+xk
-#     return result
-# def func_lspie(spie,xk,Ukpie):
-#     result=spie*(math.cos(math.radians(Ukpie)))+xk
-#     return result
-#
-# xtpie=ltpie-lpie
-# xspie=lspie-lpie
