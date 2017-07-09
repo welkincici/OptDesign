@@ -10,11 +10,9 @@ def first_para():
 
     name = 'first_para'
 
-    print(name)
-
     if name not in Materials.lights:
         light = {'L': Materials.lens[0]['d'],
-                 'U': math.degrees(math.atan(Materials.stops[0].r / Materials.lens[0]['d']))}
+                 'U': math.degrees(math.atan(Materials.stops[0]['r'] / Materials.lens[0]['d']))}
         Materials.lights[name] = [light]
         Materials.lights[name].append({'L': Paraxial.paraxial(Materials.lens, light)})
 
@@ -48,7 +46,7 @@ def meri_infi_on():
     name = 'meri_infi_on_' + str(K1) + Materials.extend
 
     if name not in Materials.lights:
-        h1 = K1 * Materials.stops[0].r
+        h1 = K1 * Materials.stops[0]['r']
         sin_i = h1 / Materials.lens[0]['r']
         sin_i_pie = sin_i / Materials.lens[0]['n']
         I = math.degrees(math.asin(sin_i))
@@ -74,7 +72,7 @@ def meri_infi_off():
 
     if name not in Materials.lights:
         U = K2 * Materials.obj['w']
-        L = Materials.stops[0].d + K1 * Materials.stops[0].r / (math.tan(math.radians(U)))
+        L = Materials.stops[0]['d'] + K1 * Materials.stops[0]['r'] / (math.tan(math.radians(U)))
         Materials.lights[name] = [{'L': L, 'U': U}]
 
         Meridional.meridional(Materials.lens, Materials.lights[name])
@@ -91,7 +89,7 @@ def meri_limi_on():
     name = 'meri_limi_on_' + str(K1) + Materials.extend
 
     if name not in Materials.lights:
-        Umax = math.atan(Materials.stops[0].r / Materials.lens[0]['d'])
+        Umax = math.atan(Materials.stops[0]['r'] / Materials.lens[0]['d'])
         L = Materials.lens[0]['d']
         sinU = K1 * math.sin(Umax)
         U = math.degrees(math.asin(sinU))
@@ -114,8 +112,8 @@ def meri_limi_off():
     if name not in Materials.lights:
         ymax = Materials.obj['r']
 
-        tanU = (K2 * ymax - K1 * Materials.stops[0].r) / (Materials.stops[0].d - Materials.lens[0]['d'])
-        L = Materials.stops[0].d + K1 * Materials.stops[0].r / tanU
+        tanU = (K2 * ymax - K1 * Materials.stops[0]['r']) / (Materials.stops[0]['d'] - Materials.lens[0]['d'])
+        L = Materials.stops[0]['d'] + K1 * Materials.stops[0]['r'] / tanU
         U = math.degrees(math.atan(tanU))
         Materials.lights[name] = [{'L': L, 'U': U}]
 
@@ -150,7 +148,14 @@ def focal():
 def lp():
     if 'lp'not in Materials.basic:
         light = {'L': 0,
-                 'U': math.degrees(math.atan(Materials.stops[0].r / Materials.lens[0]['d']))}
+                 'U': math.degrees(math.atan(Materials.stops[0]['r'] / Materials.lens[0]['d']))}
         Materials.basic['lp'] = Paraxial.paraxial(Materials.lens, light)
 
     return Materials.basic['lp']
+
+
+def all_parameters():
+    first_para()
+    height()
+    focal()
+    lp()

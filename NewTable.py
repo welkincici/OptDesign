@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QToolBar, QVBoxLayout, QAction,\
-    QFileDialog
+    QFileDialog, QTabWidget
 
 import datetime
 import xlwt
@@ -13,14 +13,25 @@ class NewTable(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setGeometry(300, 300, 800, 300)
-        self.setWindowTitle('New Table')
+        self.setGeometry(1000, 300, 800, 300)
+        self.setWindowTitle('Input')
 
-        self.tableWidget = QTableWidget()
-        self.tableWidget.setRowCount(3)
-        self.tableWidget.setColumnCount(5)
-        self.tableWidget.setHorizontalHeaderLabels(['n', 'v', 'r', 'd', 'w'])
-        self.tableWidget.setVerticalHeaderLabels(['OBJ', 'STO', 'IMA'])
+        self.tabs = QTabWidget()
+        self.lens = QWidget()
+        self.k = QWidget()
+        self.tabs.addTab(self.lens, 'Lens')
+        self.tabs.addTab(self.k, 'Aberration sorts')
+
+        self.lens.tableWidget = QTableWidget()
+        self.lens.tableWidget.setRowCount(3)
+        self.lens.tableWidget.setColumnCount(5)
+        self.lens.tableWidget.setHorizontalHeaderLabels(['n', 'v', 'r', 'd', 'w'])
+        self.lens.tableWidget.setVerticalHeaderLabels(['OBJ', 'STO', 'IMA'])
+
+        self.k.tableWidget = QTableWidget()
+        self.k.tableWidget.setRowCount(3)
+        self.k.tableWidget.setColumnCount(3)
+        self.k.tableWidget.setHorizontalHeaderLabels(['Aberration', 'K1', 'K2'])
 
         read_file = QAction('File', self)
         read_file.triggered.connect(self.read_file)
@@ -37,9 +48,15 @@ class NewTable(QWidget):
         tool.addAction(save_file)
         tool.addAction(add_line)
 
-        self.layout = QVBoxLayout()
+        self.layout = QVBoxLayout(self)
         self.layout.addWidget(tool)
-        self.layout.addWidget(self.tableWidget)
+        self.layout.addWidget(self.tabs)
+        self.lens.layout = QVBoxLayout(self)
+        self.lens.layout.addWidget(self.lens.tableWidget)
+        self.lens.setLayout(self.lens.layout)
+        self.k.layout = QVBoxLayout(self)
+        self.k.layout.addWidget(self.k.tableWidget)
+        self.k.setLayout(self.k.layout)
         self.setLayout(self.layout)
 
         self.show()
@@ -53,41 +70,50 @@ class NewTable(QWidget):
                                                    options=options)
 
         data = xlrd.open_workbook(file_name)
-        table = data.sheets()[0]
-        count = table.nrows
+        lens = data.sheets()[0]
+        lens_count = lens.nrows
 
-        if count < 4:
-            self.tableWidget.setRowCount(3)
-        else:
-            self.tableWidget.setRowCount(count-1)
-
+        self.lens.tableWidget.setRowCount(lens_count-1)
         vertical_header = []
-        for row in range(0, count-1):
-            new_len = table.row_values(row+1)
+        for row in range(0, lens_count-1):
+            new_len = lens.row_values(row+1)
             vertical_header.append(str(new_len[0]))
-            self.tableWidget.setItem(row, 0, QTableWidgetItem(str(new_len[1])))
-            self.tableWidget.setItem(row, 1, QTableWidgetItem(str(new_len[2])))
-            self.tableWidget.setItem(row, 2, QTableWidgetItem(str(new_len[3])))
-            self.tableWidget.setItem(row, 3, QTableWidgetItem(str(new_len[4])))
-            self.tableWidget.setItem(row, 4, QTableWidgetItem(str(new_len[5])))
+            self.lens.tableWidget.setItem(row, 0, QTableWidgetItem(str(new_len[1])))
+            self.lens.tableWidget.setItem(row, 1, QTableWidgetItem(str(new_len[2])))
+            self.lens.tableWidget.setItem(row, 2, QTableWidgetItem(str(new_len[3])))
+            self.lens.tableWidget.setItem(row, 3, QTableWidgetItem(str(new_len[4])))
+            self.lens.tableWidget.setItem(row, 4, QTableWidgetItem(str(new_len[5])))
 
-        self.tableWidget.setVerticalHeaderLabels(vertical_header)
+        self.lens.tableWidget.setVerticalHeaderLabels(vertical_header)
+
+        if len(data.sheets()) > 1:
+            k = data.sheets()[1]
+            k_count = k.nrows
+            if k_count > 1:
+                self.k.tableWidget.setRowCount(k_count - 1)
+                for row in range(0, k_count - 1):
+                    new_aber = k.row_values(row + 1)
+                    self.k.tableWidget.setItem(row, 0, QTableWidgetItem(str(new_aber[0])))
+                    self.k.tableWidget.setItem(row, 1, QTableWidgetItem(str(new_aber[1])))
+                    self.k.tableWidget.setItem(row, 2, QTableWidgetItem(str(new_aber[2])))
 
     def submit(self):
-        rows = self.tableWidget.rowCount()
         Materials.lens = []
         Materials.stops = []
         Materials.obj = {}
         Materials.lights = {}
         Materials.aber = {}
         Materials.basic = {}
-        my_table = []
 
-        for row in range(0, rows):
+        lens_rows = self.lens.tableWidget.rowCount()
+        k_rows = self.k.tableWidget.rowCount()
+
+        my_table = []
+        for row in range(0, lens_rows):
             my_row = []
             for col in range(0, 4):
-                if self.tableWidget.item(row, col) is not None:
-                    my_row.append(float(self.tableWidget.item(row, col).text()))
+                if self.lens.tableWidget.item(row, col) is not None:
+                    my_row.append(float(self.lens.tableWidget.item(row, col).text()))
                 else:
                     if col == 0:
                         my_row.append(1)
@@ -98,45 +124,62 @@ class NewTable(QWidget):
 
             my_table.append(my_row)
 
-        for row in range(0, rows):
+        for row in range(0, lens_rows):
 
-            if self.tableWidget.verticalHeaderItem(row) is not None:
-                my_type = self.tableWidget.verticalHeaderItem(row).text()
+            if self.lens.tableWidget.verticalHeaderItem(row) is not None:
+                my_type = self.lens.tableWidget.verticalHeaderItem(row).text()
             if my_type == 'OBJ':
                 Materials.obj['n'] = my_table[row][0]
                 Materials.obj['v'] = my_table[row][1]
                 Materials.obj['r'] = my_table[row][2]
                 Materials.obj['d'] = my_table[row][3]
-                if self.tableWidget.item(row, 4) is not None:
-                     Materials.obj['w'] = float(self.tableWidget.item(row, 4).text())
+                if self.lens.tableWidget.item(row, 4) is not None:
+                     Materials.obj['w'] = float(self.lens.tableWidget.item(row, 4).text())
             elif my_type == 'STO':
-                new_stop = Materials.Stop(my_table[row][2], my_table[row][3])
+                new_stop = {'r': my_table[row][2], 'd': my_table[row][3]}
                 Materials.stops.append(new_stop)
             elif my_type == 'IMA':
                 print('ima')
             else:
                 Materials.add_len(my_table[row])
                 Materials.nd.append(my_table[row][0])
+
+        # my_table = []
+        # for row in range(0, k_rows):
+        #     my_row = []
+        #     for col in range(0, 3):
+        #         if self.k.tableWidget.item(row, col) is not None:
+        #             my_row.append(float(self.k.tableWidget.item(row, col).text()))
+        #         else:
+        #             my_row.append('')
+        #
+        #     my_table.append(my_row)
+
+        # for row in range(0, lens_rows):
+        #     Materials.add_len(my_table[row])
+        #     Materials.nd.append(my_table[row][0])
+
         Materials.show()
 
     def save_file(self):
         data = xlwt.Workbook()
-        sheet = data.add_sheet('sheet1')
+        lens = data.add_sheet('Lens')
+        k = data.add_sheet('Aberration sort')
 
         rows = self.tableWidget.rowCount()
 
         headers = ['', 'n', 'v', 'r', 'd', 'w']
         col_count = 0
         for header in headers:
-            sheet.write(0, col_count, header)
+            lens.write(0, col_count, header)
             col_count += 1
 
         for row in range(0, rows):
             if self.tableWidget.verticalHeaderItem(row) is not None:
-                sheet.write(row + 1, 0, self.tableWidget.verticalHeaderItem(row).text())
+                lens.write(row + 1, 0, self.tableWidget.verticalHeaderItem(row).text())
             for col in range(0, 4):
                 if self.tableWidget.item(row, col) is not None:
-                    sheet.write(row + 1, col + 1, self.tableWidget.item(row, col).text())
+                    lens.write(row + 1, col + 1, self.tableWidget.item(row, col).text())
 
         data.save(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")+'.xls')
 

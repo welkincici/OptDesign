@@ -1,17 +1,14 @@
-class Stop:
-    def __init__(self, r, d):
-        self.d = d
-        self.r = r
-
 lens = []
 stops = []
 obj = {}
 K = {
-    'spherical': [0.7, 1],
+    'spherical': [[0.7, 1]],
     'coma': [[0.7, 0.7], [0.7, 1], [1, 0.7], [1, 1]],
-    'trans_chromatism': [0.7, 1],
-    'mag_chromatism': [0.7, 1],
-    'distortion': [0.7, 1]
+    'astigmatism': [[0, 1]],
+    'curvature': [[0, 1]],
+    'distortion': [[0, 1], [0, 0.7]],
+    'trans_chromatism': [[0.7, 0], [1, 0]],
+    'mag_chromatism': [[0, 0.7], [0, 1]]
 }
 K1 = 1
 K2 = 1
@@ -32,14 +29,13 @@ def add_len(row):
 
 # d是到第一面距离
 def add_stop(r, d):
-    stops.append(Stop(r, d))
-    stops.sort(key=lambda stop: stop.d)
+    stops.append({'r': r, 'd': d})
+    stops.sort(key=lambda stop: stop['d'])
 
 
 def show():
     print(lens)
 
-    for item in stops:
-        print(item.__dict__)
+    print(stops)
 
     print('obj', obj)
