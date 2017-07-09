@@ -59,7 +59,6 @@ def off_axis(lens):
 
         spie = func_spie(s, n, lens[i]['n'], lens[i]['r'], lights[i]['I'], lights[i]['Ipie'])
         tpie = func_tpie(t, n, lens[i]['n'], lens[i]['r'], lights[i]['I'], lights[i]['Ipie'])
-        # print('spie', spie, 'tpie', tpie)
 
         if i == len(lens) - 1:
             s = spie

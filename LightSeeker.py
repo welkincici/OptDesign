@@ -1,46 +1,38 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QAction, QVBoxLayout, QWidget, QMenuBar, QSplitter
+from PyQt5.QtWidgets import QApplication, QAction, QSplitter, QMainWindow
+from PyQt5.QtCore import  Qt
 import NewTable
 import Calculate
 import Aberrations
-import ChildWidget
 
 
-class MainWindow(QWidget):
+class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        self.main_menu = QMenuBar(self)
-        self.menu_bar()
-        self.main_menu.setGeometry(0, 0, 100000000, 30)
-
-        self.setGeometry(200, 100, 800, 800)
+        self.setGeometry(200, 100, 1400, 800)
         self.setWindowTitle('Light Seeker')
 
-        self.gra = ChildWidget.Graph()
-        self.tex = ChildWidget.Text()
+        self.menuBar()
+        self.menu_bar()
 
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.gra)
-        vbox.addWidget(self.tex)
-        self.setLayout(vbox)
+        self.output = NewTable.OutputTable()
+        self.input = NewTable.InputTable()
+
+        spliter = QSplitter(self)
+        spliter.addWidget(self.output)
+        spliter.addWidget(self.input)
+        spliter.setOrientation(Qt.Horizontal)
+        self.setCentralWidget(spliter)
 
         self.show()
 
     def menu_bar(self):
-        main_menu = self.main_menu
-        data_menu = main_menu.addMenu('Data')
+        main_menu = self.menuBar()
         calculate_menu = main_menu.addMenu('Calculate')
         graph_menu = main_menu.addMenu('Graph')
         help_menu = main_menu.addMenu('Help')
-
-        create_table_btn = QAction('New Table', self)
-        create_table_btn.triggered.connect(self.create_table)
-        save_btn = QAction('Save result', self)
-        save_btn.triggered.connect(self.create_table)
-        data_menu.addAction(create_table_btn)
-        data_menu.addAction(save_btn)
 
         paraxial_menu = calculate_menu.addMenu('Basic parameter')
         aberrations_menu = calculate_menu.addMenu('Aberrations')
@@ -117,14 +109,11 @@ class MainWindow(QWidget):
 
         calculate_menu.triggered.connect(self.result)
 
-    def create_table(self):
-        self.new_table = NewTable.NewTable()
+    def result(self):
+        self.output.result()
 
     def help(self):
         print('help')
-
-    def result(self):
-        self.tex.result_text()
 
 
 if __name__ == '__main__':

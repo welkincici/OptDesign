@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QToolBar, QVBoxLayout, QAction,\
-    QFileDialog, QTabWidget
+    QFileDialog, QTabWidget, QHeaderView
 
 import xlwt
 import xlrd
@@ -8,12 +8,9 @@ from Prepare import FAR_L
 # n,v:面后面的折射率和阿贝,r是半径,d是跟前一个面的距离
 
 
-class NewTable(QWidget):
+class InputTable(QWidget):
     def __init__(self):
         super().__init__()
-
-        self.setGeometry(1000, 300, 800, 300)
-        self.setWindowTitle('Input')
 
         self.tabs = QTabWidget()
         self.lens = QWidget()
@@ -25,13 +22,17 @@ class NewTable(QWidget):
         self.lens.tableWidget.setRowCount(3)
         self.lens.tableWidget.setColumnCount(5)
         self.lens.tableWidget.setHorizontalHeaderLabels(['n', 'v', 'r', 'd', 'w'])
+        self.lens.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.lens.tableWidget.setVerticalHeaderLabels(['OBJ', 'STO', 'IMA'])
 
         self.k.tableWidget = QTableWidget()
         self.k.tableWidget.setRowCount(3)
         self.k.tableWidget.setColumnCount(3)
         self.k.tableWidget.setHorizontalHeaderLabels(['Aberration', 'K1', 'K2'])
+        self.k.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
+        new_table = QAction('New Table', self)
+        new_table.triggered.connect(self.new_table)
         read_file = QAction('File', self)
         read_file.triggered.connect(self.read_file)
         submit = QAction('Submit', self)
@@ -42,6 +43,7 @@ class NewTable(QWidget):
         add_line.triggered.connect(self.add_line)
 
         tool = QToolBar(self)
+        tool.addAction(new_table)
         tool.addAction(read_file)
         tool.addAction(submit)
         tool.addAction(save_file)
@@ -58,7 +60,14 @@ class NewTable(QWidget):
         self.k.setLayout(self.k.layout)
         self.setLayout(self.layout)
 
-        self.show()
+    def new_table(self):
+
+        self.lens.tableWidget.clearContents()
+        self.lens.tableWidget.setRowCount(3)
+        self.lens.tableWidget.setVerticalHeaderLabels(['OBJ', 'STO', 'IMA'])
+
+        self.k.tableWidget.clearContents()
+        self.k.tableWidget.setRowCount(3)
 
     def read_file(self):
         # BUG!! click cancel will close all windows
@@ -146,7 +155,6 @@ class NewTable(QWidget):
         my_table = []
         for row in range(0, k_rows):
             my_row = []
-            print('1')
             for col in range(0, 3):
                 if self.k.tableWidget.item(row, col) is not None:
                     my_row.append(self.k.tableWidget.item(row, col).text())
@@ -213,5 +221,103 @@ class NewTable(QWidget):
         header = QTableWidgetItem(rows+1)
         table.setVerticalHeaderItem(rows, header)
         table.setRowCount(rows + 1)
+
+
+class OutputTable(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.tabs = QTabWidget()
+        self.aber = QWidget()
+        self.basic = QWidget()
+        self.tabs.addTab(self.aber, 'Aberrations')
+        self.tabs.addTab(self.basic, 'Basic parameters')
+
+        self.aber.tableWidget = QTableWidget()
+        self.aber.tableWidget.setRowCount(0)
+        self.aber.tableWidget.setColumnCount(4)
+        self.aber.tableWidget.setHorizontalHeaderLabels(['Aberration', 'K1', 'K2', 'Result'])
+        self.aber.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        self.basic.tableWidget = QTableWidget()
+        self.basic.tableWidget.setRowCount(0)
+        self.basic.tableWidget.setColumnCount(2)
+        self.basic.tableWidget.setHorizontalHeaderLabels(['Basic parameter', 'Result'])
+        self.basic.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        save_file = QAction('Save', self)
+        save_file.triggered.connect(self.save_file)
+        tool = QToolBar(self)
+        tool.addAction(save_file)
+
+        self.layout = QVBoxLayout(self)
+        self.layout.addWidget(tool)
+        self.layout.addWidget(self.tabs)
+        self.aber.layout = QVBoxLayout(self)
+        self.aber.layout.addWidget(self.aber.tableWidget)
+        self.aber.setLayout(self.aber.layout)
+        self.basic.layout = QVBoxLayout(self)
+        self.basic.layout.addWidget(self.basic.tableWidget)
+        self.basic.setLayout(self.basic.layout)
+        self.setLayout(self.layout)
+
+    def result(self):
+        row = 0
+        for aber in Materials.aber:
+            flag = 1
+            for item in Materials.aber[aber]:
+                self.aber.tableWidget.setRowCount(row + 1)
+                if flag:
+                    self.aber.tableWidget.setItem(row, 0, QTableWidgetItem(str(aber)))
+                K = item.split('_')
+                self.aber.tableWidget.setItem(row, 1, QTableWidgetItem(str(K[0])))
+                self.aber.tableWidget.setItem(row, 2, QTableWidgetItem(str(K[1])))
+                self.aber.tableWidget.setItem(row, 3, QTableWidgetItem(str(Materials.aber[aber][item])))
+                row = row + 1
+                flag = 0
+
+        row = 0
+        for basic in Materials.basic:
+            self.basic.tableWidget.setRowCount(row + 1)
+            self.basic.tableWidget.setItem(row, 0, QTableWidgetItem(str(basic)))
+            self.basic.tableWidget.setItem(row, 1, QTableWidgetItem(str(Materials.basic[basic])))
+            row = row + 1
+
+    def save_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_path, _ = QFileDialog.getSaveFileName(self, 'Save File',
+                                                   "newData", "Excel files (*.xls);;all files(*.*)")
+
+        data = xlwt.Workbook()
+        aber = data.add_sheet('Aberrations')
+        basic = data.add_sheet('Basic parameter')
+
+        rows = self.aber.tableWidget.rowCount()
+        headers = ['Aberration', 'K1', 'K2', 'Result']
+        col_count = 0
+        for header in headers:
+            aber.write(0, col_count, header)
+            col_count += 1
+
+        for row in range(0, rows):
+            for col in range(0, 4):
+                if self.aber.tableWidget.item(row, col) is not None:
+                    aber.write(row + 1, col, self.aber.tableWidget.item(row, col).text())
+
+        rows = self.basic.tableWidget.rowCount()
+        headers = ['Basic parameter', 'Result']
+        col_count = 0
+        for header in headers:
+            basic.write(0, col_count, header)
+            col_count += 1
+
+        for row in range(0, rows):
+            for col in range(0, 3):
+                if self.basic.tableWidget.item(row, col) is not None:
+                    basic.write(row + 1, col, self.basic.tableWidget.item(row, col).text())
+
+        data.save(file_path)
+
 
 

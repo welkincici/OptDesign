@@ -16,6 +16,8 @@ def first_para():
         Materials.lights[name] = [light]
         Materials.lights[name].append({'L': Paraxial.paraxial(Materials.lens, light)})
 
+    Materials.basic['ideal spot'] = Materials.lights[name][-1]['L']
+
     return Materials.lights[name]
 
 
