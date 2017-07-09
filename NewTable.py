@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QToolBar, QVBoxLayout, QAction,\
     QFileDialog, QTabWidget
 
-import datetime
 import xlwt
 import xlrd
 import Materials
@@ -66,7 +65,7 @@ class NewTable(QWidget):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_name, _ = QFileDialog.getOpenFileName(self, "File Input", "",
-                                                   "All Files (*);;Excel Files (*.xls)",
+                                                   "All Files (*);;Excel Files (*.xls , *xlsx)",
                                                    options=options)
 
         data = xlrd.open_workbook(file_name)
@@ -144,29 +143,40 @@ class NewTable(QWidget):
                 Materials.add_len(my_table[row])
                 Materials.nd.append(my_table[row][0])
 
-        # my_table = []
-        # for row in range(0, k_rows):
-        #     my_row = []
-        #     for col in range(0, 3):
-        #         if self.k.tableWidget.item(row, col) is not None:
-        #             my_row.append(float(self.k.tableWidget.item(row, col).text()))
-        #         else:
-        #             my_row.append('')
-        #
-        #     my_table.append(my_row)
+        my_table = []
+        for row in range(0, k_rows):
+            my_row = []
+            print('1')
+            for col in range(0, 3):
+                if self.k.tableWidget.item(row, col) is not None:
+                    my_row.append(self.k.tableWidget.item(row, col).text())
+                else:
+                    my_row.append('')
 
-        # for row in range(0, lens_rows):
-        #     Materials.add_len(my_table[row])
-        #     Materials.nd.append(my_table[row][0])
+            my_table.append(my_row)
+
+        aber = ''
+        for row in range(0, k_rows):
+            if my_table[row][0] != '':
+                aber = my_table[row][0]
+                Materials.K[aber] = []
+
+            if aber != '':
+                Materials.K[aber].append([float(my_table[row][1]), float(my_table[row][2])])
 
         Materials.show()
 
     def save_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_path, _ = QFileDialog.getSaveFileName(self, 'Save File',
+                                                "newData", "Excel files (*.xls);;all files(*.*)")
+
         data = xlwt.Workbook()
         lens = data.add_sheet('Lens')
-        k = data.add_sheet('Aberration sort')
+        k = data.add_sheet('Aberrations')
 
-        rows = self.tableWidget.rowCount()
+        rows = self.lens.tableWidget.rowCount()
 
         headers = ['', 'n', 'v', 'r', 'd', 'w']
         col_count = 0
@@ -175,18 +185,33 @@ class NewTable(QWidget):
             col_count += 1
 
         for row in range(0, rows):
-            if self.tableWidget.verticalHeaderItem(row) is not None:
-                lens.write(row + 1, 0, self.tableWidget.verticalHeaderItem(row).text())
+            if self.lens.tableWidget.verticalHeaderItem(row) is not None:
+                lens.write(row + 1, 0, self.lens.tableWidget.verticalHeaderItem(row).text())
             for col in range(0, 4):
-                if self.tableWidget.item(row, col) is not None:
-                    lens.write(row + 1, col + 1, self.tableWidget.item(row, col).text())
+                if self.lens.tableWidget.item(row, col) is not None:
+                    lens.write(row + 1, col + 1, self.lens.tableWidget.item(row, col).text())
 
-        data.save(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")+'.xls')
+        rows = self.k.tableWidget.rowCount()
+
+        headers = ['Aberration', 'K1', 'K2']
+        col_count = 0
+        for header in headers:
+            k.write(0, col_count, header)
+            col_count += 1
+
+        for row in range(0, rows):
+            for col in range(0, 3):
+                if self.k.tableWidget.item(row, col) is not None:
+                    k.write(row + 1, col, self.k.tableWidget.item(row, col).text())
+
+        data.save(file_path)
 
     def add_line(self):
-        rows = self.tableWidget.rowCount()
+        table = self.tabs.currentWidget().tableWidget
+
+        rows = table.rowCount()
         header = QTableWidgetItem(rows+1)
-        self.tableWidget.setVerticalHeaderItem(rows, header)
-        self.tableWidget.setRowCount(rows + 1)
+        table.setVerticalHeaderItem(rows, header)
+        table.setRowCount(rows + 1)
 
 
