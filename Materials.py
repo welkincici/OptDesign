@@ -2,13 +2,13 @@ lens = []
 stops = []
 obj = {}
 K = {
-    'spherical': [[0.7, 1]],
-    'coma': [[0.7, 0.7], [0.7, 1], [1, 0.7], [1, 1]],
-    'astigmatism': [[0, 1]],
-    'curvature': [[0, 1]],
-    'distortion': [[0, 1], [0, 0.7]],
-    'trans_chromatism': [[0.7, 0], [1, 0]],
-    'mag_chromatism': [[0, 0.7], [0, 1]]
+    # 'spherical': [[0.7, 1]],
+    # 'coma': [[0.7, 0.7], [0.7, 1], [1, 0.7], [1, 1]],
+    # 'astigmatism': [[0, 1]],
+    # 'curvature': [[0, 1]],
+    # 'distortion': [[0, 1], [0, 0.7]],
+    # 'trans_chromatism': [[0.7, 0], [1, 0]],
+    # 'mag_chromatism': [[0, 0.7], [0, 1]]
 }
 K1 = 1
 K2 = 1
@@ -39,3 +39,5 @@ def show():
     print(stops)
 
     print('obj', obj)
+
+    print(K)
