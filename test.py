@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QWidget, QAc
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 
+
 class App(QMainWindow):
 
     def __init__(self):

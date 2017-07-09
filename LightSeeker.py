@@ -1,7 +1,6 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QAction, QVBoxLayout, QWidget, QMenuBar
-
+from PyQt5.QtWidgets import QApplication, QAction, QVBoxLayout, QWidget, QMenuBar, QSplitter
 import NewTable
 import Calculate
 import Aberrations
