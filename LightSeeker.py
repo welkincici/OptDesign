@@ -5,6 +5,7 @@ from PyQt5.QtCore import  Qt
 import NewTable
 import Calculate
 import Aberrations
+import Graph
 
 
 class MainWindow(QMainWindow):
@@ -79,24 +80,18 @@ class MainWindow(QMainWindow):
         aberrations_menu.addAction(all_btn)
 
         gspherical_btn = QAction('Spherical', self)
-        gspherical_btn.triggered.connect(Aberrations.spherical)
-        gcoma_btn = QAction('Coma', self)
-        gcoma_btn.triggered.connect(Aberrations.coma)
-        gastigmatism_btn = QAction('Astigmatism', self)
-        gastigmatism_btn.triggered.connect(Aberrations.astigmatism)
+        gspherical_btn.triggered.connect(Graph.spherical)
         gcurvature_btn = QAction('Curvature', self)
-        gcurvature_btn.triggered.connect(Aberrations.curvature)
+        gcurvature_btn.triggered.connect(Graph.curvature)
         gdistortion_btn = QAction('Distortion', self)
-        gdistortion_btn.triggered.connect(Aberrations.distortion)
+        gdistortion_btn.triggered.connect(Graph.distortion)
         gmag_chromatism_btn = QAction('Mag chromatism', self)
-        gmag_chromatism_btn.triggered.connect(Aberrations.mag_chromatism)
+        gmag_chromatism_btn.triggered.connect(Graph.mag_chromatism)
         gtrans_chromatism_btn = QAction('Trans chromatism', self)
-        gtrans_chromatism_btn.triggered.connect(Aberrations.trans_chromatism)
-        gall_btn = QAction('Calculate all aberrations', self)
-        gall_btn.triggered.connect(Aberrations.all_aberrations)
+        gtrans_chromatism_btn.triggered.connect(Graph.trans_chromatism)
+        gall_btn = QAction('All aberrations', self)
+        gall_btn.triggered.connect(Graph.all_aberrations)
         graph_menu.addAction(gspherical_btn)
-        graph_menu.addAction(gcoma_btn)
-        graph_menu.addAction(gastigmatism_btn)
         graph_menu.addAction(gcurvature_btn)
         graph_menu.addAction(gdistortion_btn)
         graph_menu.addAction(gmag_chromatism_btn)

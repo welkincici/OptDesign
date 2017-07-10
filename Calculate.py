@@ -125,8 +125,6 @@ def meri_limi_off():
 
 
 def off_axis():
-    Materials.K2 = 1
-    Materials.K1 = 0
     return OffAxis.off_axis(Materials.lens)
 
 

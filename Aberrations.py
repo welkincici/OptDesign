@@ -174,6 +174,9 @@ def mag_chromatism():
                 y_c = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
             Materials.aber[name][str(k[0]) + '_' + str(k[1])] = y_f - y_c
+            Materials.basic['d height'] = y_d
+            Materials.basic['F height'] = y_f
+            Materials.basic['C height'] = y_c
 
     for item in range(0, len(Materials.lens)):
         Materials.lens[item]['n'] = Materials.nd[item]
@@ -186,34 +189,6 @@ def trans_chromatism():
 
     if name not in Materials.aber:
         Materials.aber[name] = {}
-    #
-    # Materials.K2 = 0
-    #
-    # for k in Materials.K[name]:
-    #     if str(k) not in Materials.aber[name]:
-    #         Materials.K1 = k
-    #         if Materials.lens[0]['d'] > FAR_L:
-    #             for item in range(0, len(Materials.lens)):
-    #                 Materials.lens[item]['n'] = Materials.nf[item]
-    #             Materials.extend = '_f'
-    #             aber_f = Calculate.meri_limi_on()[-1]['L']
-    #
-    #             for item in range(0, len(Materials.lens)):
-    #                 Materials.lens[item]['n'] = Materials.nc[item]
-    #             Materials.extend = '_c'
-    #             aber_c = Calculate.meri_limi_on()[-1]['L']
-    #         else:
-    #             for item in range(0, len(Materials.lens)):
-    #                 Materials.lens[item]['n'] = Materials.nf[item]
-    #             Materials.extend = '_f'
-    #             aber_f = Calculate.meri_infi_on()[-1]['L']
-    #
-    #             for item in range(0, len(Materials.lens)):
-    #                 Materials.lens[item]['n'] = Materials.nc[item]
-    #             Materials.extend = '_c'
-    #             aber_c = Calculate.meri_infi_on()[-1]['L']
-    #
-    #         Materials.aber[name][str(k)] = aber_f - aber_c
 
     for k in Materials.K[name]:
         if str(k[0]) + '_' + str(k[1]) not in Materials.aber[name]:
