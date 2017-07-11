@@ -33,6 +33,9 @@ def spherical():
     Materials.K[name] = k_copy
     Materials.aber[name] = aber_copy
 
+    plt.xlabel('spherical aberration')
+    plt.ylabel('K1')
+
     plt.plot(aber, x)
     plt.show()
 
@@ -66,6 +69,8 @@ def distortion():
     Materials.K[name] = k_copy
     Materials.aber[name] = aber_copy
 
+    plt.xlabel('distortion')
+    plt.ylabel('K2')
     plt.plot(aber, x)
     plt.show()
 
@@ -98,39 +103,64 @@ def mag_chromatism():
     Materials.K[name] = k_copy
     Materials.aber[name] = aber_copy
 
+    plt.xlabel('lateral chromatic aberration')
+    plt.ylabel('K2')
     plt.plot(aber, x)
     plt.show()
 
 
 def trans_chromatism():
     plt.figure('Trans_chromatism')
-    name = 'trans_chromatism'
     x = np.linspace(0, 1, 52)
-    if name in Materials.K:
-        k_copy = copy.deepcopy(Materials.K[name])
-    else:
-        k_copy = []
-    if name in Materials.aber:
-        aber_copy = copy.deepcopy(Materials.aber[name])
-    else:
-        aber_copy = {}
+    x.put(0, 0.001)
 
-    Materials.K[name] = []
+    if 'spherical' in Materials.K:
+        ks_copy = copy.deepcopy(Materials.K['spherical'])
+    else:
+        ks_copy = []
+
+    if 'spherical' in Materials.aber:
+        abers_copy = copy.deepcopy(Materials.aber['spherical'])
+    else:
+        abers_copy = {}
+
+    lights = copy.deepcopy(Materials.lights)
+
+    Materials.K['spherical'] = []
     for item in x:
-        if item == 0:
-            continue
-        Materials.K[name].append([item, 0])
+        Materials.K['spherical'].append([item, 0])
 
-    Materials.aber[name] = {}
-    Aberrations.trans_chromatism()
+    Materials.aber['spherical'] = {}
+    Materials.aber['trans_chromatism'] = {}
 
-    aber = list(Materials.aber[name].values())
-    aber.insert(0, 0)
+    Aberrations.spherical()
+    aber = list(Materials.aber['spherical'].values())
 
-    Materials.K[name] = k_copy
-    Materials.aber[name] = aber_copy
+    for item in range(0, len(Materials.lens)):
+        Materials.lens[item]['n'] = Materials.nf[item]
+    Materials.extend = '_f'
+    Aberrations.spherical()
+    aber_f = list(Materials.aber['spherical' + Materials.extend].values())
 
+    for item in range(0, len(Materials.lens)):
+        Materials.lens[item]['n'] = Materials.nc[item]
+    Materials.extend = '_c'
+    Aberrations.spherical()
+    aber_c = list(Materials.aber['spherical' + Materials.extend].values())
+
+    for item in range(0, len(Materials.lens)):
+        Materials.lens[item]['n'] = Materials.nd[item]
+    Materials.extend = ''
+
+    Materials.K['spherical'] = ks_copy
+    Materials.aber['spherical'] = abers_copy
+    Materials.lights = lights
+
+    plt.xlabel('spherical aberration')
+    plt.ylabel('K1')
     plt.plot(aber, x)
+    plt.plot(aber_f, x)
+    plt.plot(aber_c, x)
     plt.show()
 
 
@@ -168,6 +198,8 @@ def curvature():
     Materials.aber[name + '_s'] = abers_copy
     Materials.aber[name + '_t'] = abert_copy
 
+    plt.xlabel('curvature')
+    plt.ylabel('K2')
     plt.plot(abers, x)
     plt.plot(abert, x)
     plt.show()

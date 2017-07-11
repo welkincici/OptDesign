@@ -7,19 +7,21 @@ import math
 
 def spherical():
     name = 'spherical'
-    if name not in Materials.aber:
-        Materials.aber[name] = {}
+    if name + Materials.extend not in Materials.aber:
+        Materials.aber[name + Materials.extend] = {}
 
     gauss = Calculate.first_para()[-1]['L']
 
     for k in Materials.K[name]:
-        if str(k[0]) + '_' + str(k[1]) not in Materials.aber[name]:
+        if str(k[0]) + '_' + str(k[1]) not in Materials.aber[name + Materials.extend]:
             Materials.K1 = k[0]
             Materials.K2 = k[1]
             if Materials.lens[0]['d'] > FAR_L:
-                Materials.aber[name][str(k[0]) + '_' + str(k[1])] = Calculate.meri_limi_on()[-1]['L'] - gauss
+                Materials.aber[name + Materials.extend][str(k[0]) + '_' + str(k[1])] = \
+                    Calculate.meri_limi_on()[-1]['L'] - gauss
             else:
-                Materials.aber[name][str(k[0]) + '_' + str(k[1])] = Calculate.meri_infi_on()[-1]['L'] - gauss
+                Materials.aber[name + Materials.extend][str(k[0]) + '_' + str(k[1])] = \
+                    Calculate.meri_infi_on()[-1]['L'] - gauss
 
 
 def coma():
@@ -117,7 +119,7 @@ def distortion():
             gauss = Calculate.first_para()[-1]['L']
             if Materials.lens[0]['d'] > FAR_L:
                 light = Calculate.meri_limi_off()
-                yp = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+                yp = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
                 y = Materials.obj['r'] * k[1]
                 w = math.radians(Materials.obj['w']) * k[1]
                 y0 = -Paraxial.height(Materials.lens, y, w)
@@ -199,7 +201,6 @@ def trans_chromatism():
                     Materials.lens[item]['n'] = Materials.nf[item]
                 Materials.extend = '_f'
                 aber_f = Calculate.meri_limi_on()[-1]['L']
-
                 for item in range(0, len(Materials.lens)):
                     Materials.lens[item]['n'] = Materials.nc[item]
                 Materials.extend = '_c'

@@ -97,7 +97,7 @@ def meri_limi_on():
         U = math.degrees(math.asin(sinU))
         Materials.lights[name] = [{'L': L, 'U': U}]
 
-        Meridional.meridional(Materials.lens, Materials.lights['meri_limi_on_' + str(K1)])
+        Meridional.meridional(Materials.lens, Materials.lights[name])
 
     return Materials.lights[name]
 
@@ -109,7 +109,7 @@ def meri_limi_off():
     K1 = Materials.K1
     K2 = Materials.K2
 
-    name = 'meri_limi_off_' + str(K1) + Materials.extend
+    name = 'meri_limi_off_' + str(K1) + '_' + str(K2) + Materials.extend
 
     if name not in Materials.lights:
         ymax = Materials.obj['r']
