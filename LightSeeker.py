@@ -2,7 +2,6 @@ import sys
 
 from PyQt5.QtWidgets import QApplication, QAction, QSplitter, QMainWindow
 from PyQt5.QtCore import Qt
-from PyQt5 import QtGui
 import NewTable
 import Calculate
 import Aberrations
