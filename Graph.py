@@ -35,6 +35,9 @@ def spherical():
 
     plt.xlabel('spherical aberration')
     plt.ylabel('K1')
+    ax = plt.gca()
+    ax.spines['top'].set_color('none')
+    ax.spines['right'].set_color('none')
 
     plt.plot(aber, x)
     plt.show()
@@ -71,6 +74,10 @@ def distortion():
 
     plt.xlabel('distortion')
     plt.ylabel('K2')
+    ax = plt.gca()
+    ax.spines['top'].set_color('none')
+    ax.spines['right'].set_color('none')
+
     plt.plot(aber, x)
     plt.show()
 
@@ -105,6 +112,10 @@ def mag_chromatism():
 
     plt.xlabel('lateral chromatic aberration')
     plt.ylabel('K2')
+    ax = plt.gca()
+    ax.spines['top'].set_color('none')
+    ax.spines['right'].set_color('none')
+
     plt.plot(aber, x)
     plt.show()
 
@@ -158,9 +169,16 @@ def trans_chromatism():
 
     plt.xlabel('spherical aberration')
     plt.ylabel('K1')
+    ax = plt.gca()
+    ax.spines['top'].set_color('none')
+    ax.spines['right'].set_color('none')
+
     plt.plot(aber, x)
     plt.plot(aber_f, x)
     plt.plot(aber_c, x)
+    plt.annotate('d', xy=(aber[-1], x[-1]), xytext=(aber[-1], x[-1] - 0.1))
+    plt.annotate('F', xy=(aber_f[-1], x[-1]), xytext=(aber_f[-1], x[-1] - 0.1))
+    plt.annotate('C', xy=(aber_c[-1], x[-1]), xytext=(aber_c[-1], x[-1] - 0.1))
     plt.show()
 
 
@@ -200,8 +218,14 @@ def curvature():
 
     plt.xlabel('curvature')
     plt.ylabel('K2')
+    ax = plt.gca()
+    ax.spines['top'].set_color('none')
+    ax.spines['right'].set_color('none')
+
     plt.plot(abers, x)
     plt.plot(abert, x)
+    plt.annotate('s', xy=(abers[-1], x[-1]), xytext=(abers[-1], x[-1] - 0.1))
+    plt.annotate('s', xy=(abert[-1], x[-1]), xytext=(abert[-1], x[-1] - 0.1))
     plt.show()
 
 

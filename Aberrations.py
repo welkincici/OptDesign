@@ -3,6 +3,7 @@ import Calculate
 import Paraxial
 from Prepare import FAR_L
 import math
+import copy
 
 
 def spherical():
@@ -192,36 +193,34 @@ def trans_chromatism():
     if name not in Materials.aber:
         Materials.aber[name] = {}
 
-    for k in Materials.K[name]:
-        if str(k[0]) + '_' + str(k[1]) not in Materials.aber[name]:
-            Materials.K1 = k[0]
-            Materials.K2 = k[1]
-            if Materials.lens[0]['d'] > FAR_L:
-                for item in range(0, len(Materials.lens)):
-                    Materials.lens[item]['n'] = Materials.nf[item]
-                Materials.extend = '_f'
-                aber_f = Calculate.meri_limi_on()[-1]['L']
-                for item in range(0, len(Materials.lens)):
-                    Materials.lens[item]['n'] = Materials.nc[item]
-                Materials.extend = '_c'
-                aber_c = Calculate.meri_limi_on()[-1]['L']
-            else:
-                for item in range(0, len(Materials.lens)):
-                    Materials.lens[item]['n'] = Materials.nf[item]
-                Materials.extend = '_f'
-                aber_f = Calculate.meri_infi_on()[-1]['L']
+    if 'spherical' in Materials.K:
+        ks_copy = copy.deepcopy(Materials.K['spherical'])
+    else:
+        ks_copy = []
 
-                for item in range(0, len(Materials.lens)):
-                    Materials.lens[item]['n'] = Materials.nc[item]
-                Materials.extend = '_c'
-                aber_c = Calculate.meri_infi_on()[-1]['L']
+    Materials.K['spherical'] = Materials.K[name]
 
-            Materials.aber[name][str(k[0]) + '_' + str(k[1])] = aber_f - aber_c
+    for item in range(0, len(Materials.lens)):
+        Materials.lens[item]['n'] = Materials.nf[item]
+    Materials.extend = '_f'
+    spherical()
+
+    for item in range(0, len(Materials.lens)):
+        Materials.lens[item]['n'] = Materials.nc[item]
+    Materials.extend = '_c'
+    spherical()
 
     for item in range(0, len(Materials.lens)):
         Materials.lens[item]['n'] = Materials.nd[item]
-
     Materials.extend = ''
+
+    Materials.K['spherical'] = ks_copy
+
+    for k in Materials.K[name]:
+        if str(k[0]) + '_' + str(k[1]) not in Materials.aber[name]:
+            Materials.aber[name][str(k[0]) + '_' + str(k[1])] = \
+                Materials.aber['spherical_f'][str(k[0]) + '_' + str(k[1])] -\
+                Materials.aber['spherical_c'][str(k[0]) + '_' + str(k[1])]
 
 
 def all_aberrations():

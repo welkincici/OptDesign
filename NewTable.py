@@ -216,11 +216,19 @@ class InputTable(QWidget):
 
     def add_line(self):
         table = self.tabs.currentWidget().tableWidget
-
         rows = table.rowCount()
-        header = QTableWidgetItem(rows+1)
-        table.setVerticalHeaderItem(rows, header)
-        table.setRowCount(rows + 1)
+
+        row = table.currentRow() + 1
+        table.insertRow(row)
+
+        for i in range(0, rows + 1):
+            if table.verticalHeaderItem(i) is not None:
+                header = table.verticalHeaderItem(i).text()
+            else:
+                header = ''
+            if header not in ['OBJ', 'STO', 'IMA']:
+                new_header = QTableWidgetItem(str(i))
+                table.setVerticalHeaderItem(i, new_header)
 
 
 class OutputTable(QWidget):

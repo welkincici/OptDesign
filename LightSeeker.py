@@ -1,7 +1,8 @@
 import sys
 
 from PyQt5.QtWidgets import QApplication, QAction, QSplitter, QMainWindow
-from PyQt5.QtCore import  Qt
+from PyQt5.QtCore import Qt
+from PyQt5 import QtGui
 import NewTable
 import Calculate
 import Aberrations
@@ -98,17 +99,10 @@ class MainWindow(QMainWindow):
         graph_menu.addAction(gtrans_chromatism_btn)
         graph_menu.addAction(gall_btn)
 
-        help_btn = QAction('Help', self)
-        help_btn.triggered.connect(self.help)
-        help_menu.addAction(help_btn)
-
         calculate_menu.triggered.connect(self.result)
 
     def result(self):
         self.output.result()
-
-    def help(self):
-        print('help')
 
 
 if __name__ == '__main__':
