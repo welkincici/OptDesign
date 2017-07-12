@@ -2,13 +2,12 @@ import math
 import Materials
 import Paraxial
 import Meridional
-import OffAxis
 from Prepare import FAR_L
 
 
 def first_para():
 
-    name = 'first_para'
+    name = 'first_para' + Materials.extend
 
     if name not in Materials.lights:
         light = {'L': Materials.lens[0]['d'],
@@ -16,14 +15,15 @@ def first_para():
         Materials.lights[name] = [light]
         Materials.lights[name].append({'L': Paraxial.paraxial(Materials.lens, light)})
 
-    Materials.basic['ideal spot'] = Materials.lights[name][-1]['L']
+    if 'ideal spot' not in Materials.basic:
+        Materials.basic['ideal spot'] = Materials.lights['first_para'][-1]['L']
 
     return Materials.lights[name]
 
 
 def second_para():
 
-    name = 'second_para'
+    name = 'lp'
 
     if name not in Materials.lights:
         if 'w' in Materials.obj:
@@ -32,110 +32,83 @@ def second_para():
             light = {'L': 0,
                      'U': math.degrees(math.atan(Materials.obj['r'] / Materials.lens[0]['d']))}
 
-        Materials.lights[name] = [light]
-        Materials.lights[name].append({'L': Paraxial.paraxial(Materials.lens, light)})
+        Materials.basic['lp'] = Paraxial.paraxial(Materials.lens, light)
 
-    return Materials.lights[name]
+    return Materials.basic['lp']
 
 
-def meri_infi_on():
-
-    if Materials.lens[0]['d'] > FAR_L:
-        return
-
+def meri_on():
     K1 = Materials.K1
 
-    name = 'meri_infi_on_' + str(K1) + Materials.extend
+    if Materials.lens[0]['d'] < FAR_L:
 
-    if name not in Materials.lights:
-        h1 = K1 * Materials.stops[0]['r']
-        sin_i = h1 / Materials.lens[0]['r']
-        sin_i_pie = sin_i / Materials.lens[0]['n']
-        I = math.degrees(math.asin(sin_i))
-        Ipie = math.degrees(math.asin(sin_i_pie))
-        U = I - Ipie
-        L = Materials.lens[0]['r'] + Materials.lens[0]['r'] * sin_i_pie / \
-                                     math.sin(math.radians(U)) + Materials.lens[1]['d']
+        name = 'infi_on_' + str(K1) + Materials.extend
 
-        Materials.lights[name] = [{'L': L, 'U': U}]
-        Meridional.meridional(Materials.lens, Materials.lights[name], 1)
+        if name not in Materials.lights:
+            h1 = K1 * Materials.stops[0]['r']
+            sin_i = h1 / Materials.lens[0]['r']
+            sin_i_pie = sin_i / Materials.lens[0]['n']
+            I = math.degrees(math.asin(sin_i))
+            Ipie = math.degrees(math.asin(sin_i_pie))
+            U = I - Ipie
+            L = Materials.lens[0]['r'] + Materials.lens[0]['r'] * sin_i_pie / \
+                                         math.sin(math.radians(U)) + Materials.lens[1]['d']
 
-    return Materials.lights[name]
+            Materials.lights[name] = [{'L': L, 'U': U}]
+            Meridional.meridional(Materials.lens, Materials.lights[name], 1)
+    else:
 
+        name = 'limi_on_' + str(K1) + Materials.extend
 
-def meri_infi_off():
-    if Materials.lens[0]['d'] > FAR_L:
-        return
+        if name not in Materials.lights:
+            Umax = math.atan(Materials.stops[0]['r'] / Materials.lens[0]['d'])
+            L = Materials.lens[0]['d']
+            sinU = K1 * math.sin(Umax)
+            U = math.degrees(math.asin(sinU))
+            Materials.lights[name] = [{'L': L, 'U': U}]
 
-    K1 = Materials.K1
-    K2 = Materials.K2
-
-    name = 'meri_infi_off_' + str(K1) + '_' + str(K2) + Materials.extend
-
-    if name not in Materials.lights:
-        U = K2 * Materials.obj['w']
-        L = Materials.stops[0]['d'] + K1 * Materials.stops[0]['r'] / (math.tan(math.radians(U)))
-        Materials.lights[name] = [{'L': L, 'U': U}]
-
-        Meridional.meridional(Materials.lens, Materials.lights[name])
+            Meridional.meridional(Materials.lens, Materials.lights[name])
 
     return Materials.lights[name]
 
 
-def meri_limi_on():
-    if Materials.lens[0]['d'] <= FAR_L:
-        return
-
-    K1 = Materials.K1
-
-    name = 'meri_limi_on_' + str(K1) + Materials.extend
-
-    if name not in Materials.lights:
-        Umax = math.atan(Materials.stops[0]['r'] / Materials.lens[0]['d'])
-        L = Materials.lens[0]['d']
-        sinU = K1 * math.sin(Umax)
-        U = math.degrees(math.asin(sinU))
-        Materials.lights[name] = [{'L': L, 'U': U}]
-
-        Meridional.meridional(Materials.lens, Materials.lights[name])
-
-    return Materials.lights[name]
-
-
-def meri_limi_off():
-    if Materials.lens[0]['d'] <= FAR_L or 'r' not in Materials.obj:
-        return
-
+def meri_off():
     K1 = Materials.K1
     K2 = Materials.K2
 
-    name = 'meri_limi_off_' + str(K1) + '_' + str(K2) + Materials.extend
+    if Materials.lens[0]['d'] < FAR_L:
+        name = 'infi_off_' + str(K1) + '_' + str(K2) + Materials.extend
 
-    if name not in Materials.lights:
-        ymax = Materials.obj['r']
+        if name not in Materials.lights:
+            U = K2 * Materials.obj['w']
+            L = Materials.stops[0]['d'] + K1 * Materials.stops[0]['r'] / (math.tan(math.radians(U)))
+            Materials.lights[name] = [{'L': L, 'U': U}]
 
-        tanU = (K2 * ymax - K1 * Materials.stops[0]['r']) / (Materials.stops[0]['d'] - Materials.lens[0]['d'])
-        L = Materials.stops[0]['d'] + K1 * Materials.stops[0]['r'] / tanU
-        U = math.degrees(math.atan(tanU))
-        Materials.lights[name] = [{'L': L, 'U': U}]
+    else:
+        name = 'limi_off_' + str(K1) + '_' + str(K2) + Materials.extend
 
-        Meridional.meridional(Materials.lens, Materials.lights[name])
+        if name not in Materials.lights:
+            ymax = Materials.obj['r']
+
+            tanU = (K2 * ymax - K1 * Materials.stops[0]['r']) / (Materials.stops[0]['d'] - Materials.lens[0]['d'])
+            L = Materials.stops[0]['d'] + K1 * Materials.stops[0]['r'] / tanU
+            U = math.degrees(math.atan(tanU))
+            Materials.lights[name] = [{'L': L, 'U': U}]
+
+    Meridional.meridional(Materials.lens, Materials.lights[name])
 
     return Materials.lights[name]
 
 
-def off_axis():
-    return OffAxis.off_axis(Materials.lens)
-
-
-def height():
+def height(y=0, w=0):
     if 'height' not in Materials.basic:
-        y = Materials.obj['r']
-        w = math.radians(Materials.obj['w'])
+        if y == 0 and w == 0:
+            y = Materials.obj['r']
+            w = math.radians(Materials.obj['w'])
 
         Materials.basic['height'] = Paraxial.height(Materials.lens, y, w)
 
-    return Materials.basic['height']
+    return Paraxial.height(Materials.lens, y, w)
 
 
 def focal():
@@ -145,17 +118,8 @@ def focal():
     return Materials.basic['focal']
 
 
-def lp():
-    if 'lp'not in Materials.basic:
-        light = {'L': 0,
-                 'U': math.degrees(math.atan(Materials.stops[0]['r'] / Materials.lens[0]['d']))}
-        Materials.basic['lp'] = Paraxial.paraxial(Materials.lens, light)
-
-    return Materials.basic['lp']
-
-
 def all_parameters():
     first_para()
+    second_para()
     height()
     focal()
-    lp()

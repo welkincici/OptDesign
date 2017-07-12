@@ -172,8 +172,6 @@ class InputTable(QWidget):
             if aber != '':
                 Materials.K[aber].append([float(my_table[row][1]), float(my_table[row][2])])
 
-        # Materials.show()
-
     def save_file(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
