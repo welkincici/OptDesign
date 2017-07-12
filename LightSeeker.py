@@ -33,7 +33,6 @@ class MainWindow(QMainWindow):
         main_menu = self.menuBar()
         calculate_menu = main_menu.addMenu('Calculate')
         graph_menu = main_menu.addMenu('Graph')
-        help_menu = main_menu.addMenu('Help')
 
         paraxial_menu = calculate_menu.addMenu('Basic parameter')
         aberrations_menu = calculate_menu.addMenu('Aberrations')

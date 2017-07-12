@@ -8,7 +8,8 @@ import copy
 def spherical():
     plt.figure('Spherical')
     name = 'spherical'
-    x = np.linspace(0, 1, 52)
+    x = np.linspace(0, 1, 51)
+
     if name in Materials.K:
         k_copy = copy.deepcopy(Materials.K[name])
     else:
@@ -27,8 +28,13 @@ def spherical():
     Materials.aber[name] = {}
     Aberrations.spherical()
 
-    aber = list(Materials.aber[name].values())
-    aber.insert(0, 0)
+    aber= []
+    for key in x:
+        if key == 0:
+            aber.append(0)
+        else:
+            aber.append(Materials.aber[name][str(key) + '_0'])
+
 
     Materials.K[name] = k_copy
     Materials.aber[name] = aber_copy
@@ -46,7 +52,7 @@ def spherical():
 def distortion():
     plt.figure('Distortion')
     name = 'distortion'
-    x = np.linspace(0, 1, 52)
+    x = np.linspace(0, 1, 51)
 
     if name in Materials.K:
         k_copy = copy.deepcopy(Materials.K[name])
@@ -66,8 +72,12 @@ def distortion():
     Materials.aber[name] = {}
     Aberrations.distortion()
 
-    aber = list(Materials.aber[name].values())
-    aber.insert(0, 0)
+    aber = []
+    for key in x:
+        if key == 0:
+            aber.append(0)
+        else:
+            aber.append(Materials.aber[name]['0_' + str(key)])
 
     Materials.K[name] = k_copy
     Materials.aber[name] = aber_copy
@@ -85,7 +95,7 @@ def distortion():
 def mag_chromatism():
     plt.figure('Mag_chromatism')
     name = 'mag_chromatism'
-    x = np.linspace(0, 1, 52)
+    x = np.linspace(0, 1, 51)
     if name in Materials.K:
         k_copy = copy.deepcopy(Materials.K[name])
     else:
@@ -104,8 +114,12 @@ def mag_chromatism():
     Materials.aber[name] = {}
     Aberrations.mag_chromatism()
 
-    aber = list(Materials.aber[name].values())
-    aber.insert(0, 0)
+    aber = []
+    for key in x:
+        if key == 0:
+            aber.append(0)
+        else:
+            aber.append(Materials.aber[name]['0_' + str(key)])
 
     Materials.K[name] = k_copy
     Materials.aber[name] = aber_copy
@@ -122,7 +136,7 @@ def mag_chromatism():
 
 def trans_chromatism():
     plt.figure('Trans_chromatism')
-    x = np.linspace(0, 1, 52)
+    x = np.linspace(0, 1, 51)
     x.put(0, 0.001)
 
     if 'spherical' in Materials.K:
@@ -142,22 +156,27 @@ def trans_chromatism():
         Materials.K['spherical'].append([item, 0])
 
     Materials.aber['spherical'] = {}
-    Materials.aber['trans_chromatism'] = {}
 
     Aberrations.spherical()
-    aber = list(Materials.aber['spherical'].values())
+    aber = []
+    for key in x:
+        aber.append(Materials.aber['spherical'][str(key) + '_0'])
 
     for item in range(0, len(Materials.lens)):
         Materials.lens[item]['n'] = Materials.nf[item]
     Materials.extend = '_f'
     Aberrations.spherical()
-    aber_f = list(Materials.aber['spherical' + Materials.extend].values())
+    aber_f = []
+    for key in x:
+        aber_f.append(Materials.aber['spherical' + Materials.extend][str(key) + '_0'])
 
     for item in range(0, len(Materials.lens)):
         Materials.lens[item]['n'] = Materials.nc[item]
     Materials.extend = '_c'
     Aberrations.spherical()
-    aber_c = list(Materials.aber['spherical' + Materials.extend].values())
+    aber_c = []
+    for key in x:
+        aber_c.append(Materials.aber['spherical' + Materials.extend][str(key) + '_0'])
 
     for item in range(0, len(Materials.lens)):
         Materials.lens[item]['n'] = Materials.nd[item]
@@ -185,7 +204,7 @@ def trans_chromatism():
 def curvature():
     plt.figure('Curvature')
     name = 'curvature'
-    x = np.linspace(0, 1, 52)
+    x = np.linspace(0, 1, 51)
     if name + '_s' in Materials.K:
         k_copy = copy.deepcopy(Materials.K[name])
     else:
@@ -207,10 +226,15 @@ def curvature():
     Materials.aber[name + '_t'] = {}
     Aberrations.curvature()
 
-    abers = list(Materials.aber[name + '_s'].values())
-    abers.insert(0, 0)
-    abert = list(Materials.aber[name + '_t'].values())
-    abert.insert(0, 0)
+    abers = []
+    abert = []
+    for key in x:
+        if key == 0:
+            abers.append(0)
+            abert.append(0)
+        else:
+            abers.append(Materials.aber[name + '_s']['0_' + str(key)])
+            abert.append(Materials.aber[name + '_t']['0_' + str(key)])
 
     Materials.K[name] = k_copy
     Materials.aber[name + '_s'] = abers_copy
@@ -225,7 +249,7 @@ def curvature():
     plt.plot(abers, x)
     plt.plot(abert, x)
     plt.annotate('s', xy=(abers[-1], x[-1]), xytext=(abers[-1], x[-1] - 0.1))
-    plt.annotate('s', xy=(abert[-1], x[-1]), xytext=(abert[-1], x[-1] - 0.1))
+    plt.annotate('t', xy=(abert[-1], x[-1]), xytext=(abert[-1], x[-1] - 0.1))
     plt.show()
 
 
