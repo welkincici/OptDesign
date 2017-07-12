@@ -1,7 +1,6 @@
 import Materials
 import Calculate
-import Paraxial
-from Prepare import FAR_L
+import OffAxis
 import math
 import copy
 
@@ -17,12 +16,8 @@ def spherical():
         if str(k[0]) + '_' + str(k[1]) not in Materials.aber[name + Materials.extend]:
             Materials.K1 = k[0]
             Materials.K2 = k[1]
-            if Materials.lens[0]['d'] > FAR_L:
-                Materials.aber[name + Materials.extend][str(k[0]) + '_' + str(k[1])] = \
-                    Calculate.meri_limi_on()[-1]['L'] - gauss
-            else:
-                Materials.aber[name + Materials.extend][str(k[0]) + '_' + str(k[1])] = \
-                    Calculate.meri_infi_on()[-1]['L'] - gauss
+            Materials.aber[name + Materials.extend][str(k[0]) + '_' + str(k[1])] = \
+                Calculate.meri_on()[-1]['L'] - gauss
 
 
 def coma():
@@ -36,53 +31,19 @@ def coma():
     for k in Materials.K[name]:
         if str(k[0]) + '_' + str(k[1]) not in Materials.aber[name]:
             Materials.K2 = k[1]
-            if Materials.lens[0]['d'] > FAR_L:
-                Materials.K1 = 0
-                light = Calculate.meri_limi_off()
-                y = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            Materials.K1 = 0
+            light = Calculate.meri_off()
+            y = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
-                Materials.K1 = -k[0]
-                light = Calculate.meri_limi_off()
-                y_b = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            Materials.K1 = -k[0]
+            light = Calculate.meri_off()
+            y_b = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
-                Materials.K1 = k[0]
-                light = Calculate.meri_limi_off()
-                y_a = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
-            else:
-                Materials.K1 = 0
-                light = Calculate.meri_infi_off()
-                y = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
-
-                Materials.K1 = -k[0]
-                light = Calculate.meri_infi_off()
-                y_b = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
-
-                Materials.K1 = k[0]
-                light = Calculate.meri_infi_off()
-                y_a = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
-
-            Materials.aber[name][str(k[0]) + '_' + str(k[1])] = \
-                y - (y_a + y_b) / 2
-
-
-def astigmatism():
-    name = 'astigmatism'
-
-    if name not in Materials.aber:
-        Materials.aber[name] = {}
-
-    for k in Materials.K[name]:
-        if str(k[0]) + '_' + str(k[1]) not in Materials.aber[name]:
             Materials.K1 = k[0]
-            Materials.K2 = k[1]
-            out = Calculate.off_axis()
-            if Materials.lens[0]['d'] > FAR_L:
-                light = Calculate.meri_limi_off()[-1]
-            else:
-                light = Calculate.meri_infi_off()[-1]
-            cos_u = math.cos(math.radians(light['U']))
+            light = Calculate.meri_off()
+            y_a = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
-            Materials.aber[name][str(k[0]) + '_' + str(k[1])] = - out[0] * cos_u + out[1] * cos_u
+            Materials.aber[name][str(k[0]) + '_' + str(k[1])] = y - (y_a + y_b) / 2
 
 
 def curvature():
@@ -91,21 +52,22 @@ def curvature():
     if name not in Materials.aber:
         Materials.aber[name + '_s'] = {}
         Materials.aber[name + '_t'] = {}
+        Materials.aber['astigmatism'] = {}
 
     for k in Materials.K[name]:
         if str(k[0]) + '_' + str(k[1]) not in Materials.aber[name + '_s']:
             Materials.K1 = k[0]
             Materials.K2 = k[1]
             gauss = Calculate.first_para()[-1]['L']
-            out = Calculate.off_axis()
-            if Materials.lens[0]['d'] > FAR_L:
-                light = Calculate.meri_limi_off()[-1]
-            else:
-                light = Calculate.meri_infi_off()[-1]
+            out = OffAxis.off_axis()
+            light = Calculate.meri_off()[-1]
             cos_u = math.cos(math.radians(light['U']))
 
             Materials.aber[name + '_s'][str(k[0]) + '_' + str(k[1])] = out[0] * cos_u - gauss
             Materials.aber[name + '_t'][str(k[0]) + '_' + str(k[1])] = out[1] * cos_u - gauss
+            Materials.aber['astigmatism'][str(k[0]) + '_' + str(k[1])] = \
+                Materials.aber[name + '_t'][str(k[0]) + '_' + str(k[1])] - \
+                Materials.aber[name + '_s'][str(k[0]) + '_' + str(k[1])]
 
 
 def distortion():
@@ -118,20 +80,13 @@ def distortion():
             Materials.K1 = k[0]
             Materials.K2 = k[1]
             gauss = Calculate.first_para()[-1]['L']
-            if Materials.lens[0]['d'] > FAR_L:
-                light = Calculate.meri_limi_off()
-                yp = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
-                y = Materials.obj['r'] * k[1]
-                w = math.radians(Materials.obj['w']) * k[1]
-                y0 = -Paraxial.height(Materials.lens, y, w)
-            else:
-                light = Calculate.meri_infi_off()
-                yp = (light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
-                y = Materials.obj['r'] * k[1]
-                w = math.radians(Materials.obj['w']) * k[1]
-                y0 = -Paraxial.height(Materials.lens, y, w)
+            light = Calculate.meri_off()
+            yp = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            y = Materials.obj['r'] * k[1]
+            w = math.radians(Materials.obj['w']) * k[1]
+            y0 = -Calculate.height(y, w)
 
-            Materials.aber[name][str(k[0]) + '_' + str(k[1])] = - yp + y0
+            Materials.aber[name][str(k[0]) + '_' + str(k[1])] = yp - y0
 
 
 def mag_chromatism():
@@ -145,36 +100,20 @@ def mag_chromatism():
             Materials.K1 = k[0]
             Materials.K2 = k[1]
             gauss = Calculate.first_para()[-1]['L']
-            if Materials.lens[0]['d'] > FAR_L:
-                light = Calculate.meri_limi_off()
-                y_d = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            light = Calculate.meri_off()
+            y_d = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
-                for item in range(0, len(Materials.lens)):
-                    Materials.lens[item]['n'] = Materials.nf[item]
-                Materials.extend = '_f'
-                light = Calculate.meri_limi_off()
-                y_f = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            for item in range(0, len(Materials.lens)):
+                Materials.lens[item]['n'] = Materials.nf[item]
+            Materials.extend = '_f'
+            light = Calculate.meri_off()
+            y_f = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
-                for item in range(0, len(Materials.lens)):
-                    Materials.lens[item]['n'] = Materials.nc[item]
-                Materials.extend = '_c'
-                light = Calculate.meri_limi_off()
-                y_c = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
-            else:
-                light = Calculate.meri_infi_off()
-                y_d = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
-
-                for item in range(0, len(Materials.lens)):
-                    Materials.lens[item]['n'] = Materials.nf[item]
-                Materials.extend = '_f'
-                light = Calculate.meri_infi_off()
-                y_f = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
-
-                for item in range(0, len(Materials.lens)):
-                    Materials.lens[item]['n'] = Materials.nc[item]
-                Materials.extend = '_c'
-                light = Calculate.meri_infi_off()
-                y_c = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
+            for item in range(0, len(Materials.lens)):
+                Materials.lens[item]['n'] = Materials.nc[item]
+            Materials.extend = '_c'
+            light = Calculate.meri_off()
+            y_c = -(light[-1]['L'] - gauss) * math.tan(math.radians(light[-1]['U']))
 
             Materials.aber[name][str(k[0]) + '_' + str(k[1])] = y_f - y_c
             Materials.basic['d height'] = y_d
@@ -198,7 +137,7 @@ def trans_chromatism():
     else:
         ks_copy = []
 
-    Materials.K['spherical'] = Materials.K[name]
+    Materials.K['spherical'] = copy.deepcopy(Materials.K[name])
 
     for item in range(0, len(Materials.lens)):
         Materials.lens[item]['n'] = Materials.nf[item]
@@ -226,10 +165,8 @@ def trans_chromatism():
 def all_aberrations():
     spherical()
     coma()
-    astigmatism()
     curvature()
     distortion()
     trans_chromatism()
     mag_chromatism()
-    Materials.show()
 
