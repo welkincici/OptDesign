@@ -7,7 +7,7 @@ from Prepare import FAR_L
 
 def first_para():
 
-    name = 'first_para' + Materials.extend
+    name = 'first_para'
 
     if name not in Materials.lights:
         light = {'L': Materials.lens[0]['d'],
