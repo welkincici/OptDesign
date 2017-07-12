@@ -35,7 +35,6 @@ def spherical():
         else:
             aber.append(Materials.aber[name][str(key) + '_0'])
 
-
     Materials.K[name] = k_copy
     Materials.aber[name] = aber_copy
 
