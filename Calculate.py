@@ -13,7 +13,7 @@ def first_para():
         light = {'L': Materials.lens[0]['d'],
                  'U': math.degrees(math.atan(Materials.stops[0]['r'] / Materials.lens[0]['d']))}
         Materials.lights[name] = [light]
-        Materials.lights[name].append({'L': Paraxial.paraxial(Materials.lens, light)})
+        Paraxial.paraxial(Materials.lens, Materials.lights[name])
 
     if 'ideal spot' not in Materials.basic:
         Materials.basic['ideal spot'] = Materials.lights['first_para'][-1]['L']
@@ -32,17 +32,19 @@ def second_para():
             light = {'L': 0,
                      'U': math.degrees(math.atan(Materials.obj['r'] / Materials.lens[0]['d']))}
 
-        Materials.basic['lp'] = Paraxial.paraxial(Materials.lens, light)
+        Materials.lights[name] = [light]
+        Paraxial.paraxial(Materials.lens, Materials.lights[name])
 
-    return Materials.basic['lp']
+        Materials.basic[name] = Materials.lights[name][-1]['L']
 
 
 def meri_on():
     K1 = Materials.K1
+    K2 = Materials.K2
 
     if Materials.lens[0]['d'] < FAR_L:
 
-        name = 'infi_on_' + str(K1) + Materials.extend
+        name = 'infi_on_' + str(K1) + '_' + str(K2) + Materials.extend
 
         if name not in Materials.lights:
             h1 = K1 * Materials.stops[0]['r']
@@ -58,7 +60,7 @@ def meri_on():
             Meridional.meridional(Materials.lens, Materials.lights[name], 1)
     else:
 
-        name = 'limi_on_' + str(K1) + Materials.extend
+        name = 'limi_on_' + str(K1) + '_' + str(K2) + Materials.extend
 
         if name not in Materials.lights:
             Umax = math.atan(Materials.stops[0]['r'] / Materials.lens[0]['d'])

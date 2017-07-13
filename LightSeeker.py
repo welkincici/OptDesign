@@ -1,18 +1,20 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QAction, QSplitter, QMainWindow
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QAction, QSplitter, QMainWindow, QSplashScreen, QDesktopWidget
+from PyQt5.QtCore import Qt, QThread
+from PyQt5.QtGui import QPixmap
 import NewTable
 import Calculate
 import Aberrations
 import Graph
+import Layout
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        self.setGeometry(200, 100, 1400, 800)
+        self.resize(1400, 800)
         self.setWindowTitle('Light Seeker')
 
         self.menuBar()
@@ -27,12 +29,20 @@ class MainWindow(QMainWindow):
         spliter.setOrientation(Qt.Horizontal)
         self.setCentralWidget(spliter)
 
+        QThread.sleep(1)
         self.show()
+
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
     def menu_bar(self):
         main_menu = self.menuBar()
         calculate_menu = main_menu.addMenu('Calculate')
         graph_menu = main_menu.addMenu('Graph')
+        layout_btn = main_menu.addAction('Layout')
+        layout_btn.triggered.connect(Layout.layout)
 
         paraxial_menu = calculate_menu.addMenu('Basic parameter')
         aberrations_menu = calculate_menu.addMenu('Aberrations')
@@ -102,6 +112,10 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    splash = QSplashScreen(QPixmap('LightSeeker.jpg'))
+    splash.show()
+    app.processEvents()
     ex = MainWindow()
+    splash.finish(ex)
     sys.exit(app.exec_())
 

@@ -44,7 +44,7 @@ def func6(d, l1):
 
 def paraxial(lens, light):
 
-    light['U'] = math.radians(light['U'])
+    u = math.radians(light[0]['U'])
 
     n1 = 1
     l1 = 0
@@ -52,9 +52,9 @@ def paraxial(lens, light):
     number = len(lens)
     n = lens[0]['n']
     r = lens[0]['r']
-    d = light['L']
-    u1 = func1(n1, n, r, d, l1, light['U'])
-    l1 = func2(n1, n, r, d, l1, light['U'], u1)
+    d = light[0]['L']
+    u1 = func1(n1, n, r, d, l1, u)
+    l1 = func2(n1, n, r, d, l1, u, u1)
     n1 = func3(n)
     u = u1
 
@@ -67,7 +67,7 @@ def paraxial(lens, light):
         n1 = func3(n)
         u = u1
 
-    return l1
+    light.append({'L': l1, 'U': u})
 
 
 def focal(lens):
@@ -94,7 +94,6 @@ def height(lens, y, w):
         l1 = 0
         b = 1
         u = y/lens[0]['d']
-        d1 = 0
 
         number = len(lens)
         for item in range(0, number):
