@@ -16,7 +16,10 @@ def first_para():
         Paraxial.paraxial(Materials.lens, Materials.lights[name])
 
     if 'ideal spot' not in Materials.basic:
-        Materials.basic['ideal spot'] = Materials.lights['first_para'][-1]['L']
+        if 'first_para' in Materials.lights:
+            Materials.basic['ideal spot'] = Materials.lights['first_para'][-1]['L']
+
+    print(Materials.lights[name])
 
     return Materials.lights[name]
 
