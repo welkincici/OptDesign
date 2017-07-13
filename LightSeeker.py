@@ -7,7 +7,6 @@ import NewTable
 import Calculate
 import Aberrations
 import Graph
-import Layout
 
 
 class MainWindow(QMainWindow):
@@ -41,8 +40,8 @@ class MainWindow(QMainWindow):
         main_menu = self.menuBar()
         calculate_menu = main_menu.addMenu('Calculate')
         graph_menu = main_menu.addMenu('Graph')
-        layout_btn = main_menu.addAction('Layout')
-        layout_btn.triggered.connect(Layout.layout)
+        # layout_btn = main_menu.addAction('Layout')
+        # layout_btn.triggered.connect(Layout.layout)
 
         paraxial_menu = calculate_menu.addMenu('Basic parameter')
         aberrations_menu = calculate_menu.addMenu('Aberrations')
